@@ -1,0 +1,72 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+echo "This file is remote AND in the chroot"
+
+function locales {
+  grep 'en_US.UTF-8 UTF-8' /etc/locale.gen
+  # Uncomment the en_US locale
+  sed -i 's/^#\(en_US\.UTF-8 UTF-8\)/\1/g' /etc/locale.gen
+  locale-gen
+  echo LANG=en_US.UTF-8 > /etc/locale.conf
+  export LANG=en_US.UTF-8
+
+}
+
+function timezone {
+  rm /etc/localtime
+  ln -s /usr/share/zoneinfo/America/Denver /etc/localtime
+  hwclock --systohc --utc
+}
+
+function network_config {
+  HOSTNAME="djr-netbook-arch"
+  echo "$HOSTNAME" > /etc/hostname
+  cat <<EOF > /etc/hosts
+#
+# /etc/hosts: static lookup table for host names
+#
+
+#<ip-address>   <hostname.domain.org>   <hostname>
+127.0.0.1       localhost.local         localhost  ${HOSTNAME}
+::1             localhost.local         localhost  ${HOSTNAME}
+
+# End of file
+EOF
+}
+
+function ramdisk {
+  grep '^HOOKS=' /etc/mkinitcpio.conf
+  sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard usbinput encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
+  cd /boot
+  mkinitcpio -p linux
+}
+
+function users_and_passwords {
+  echo "TODO: users_and_passwords"
+}
+
+function bootloader {
+  # pacman -S fuse grub lvm2 os-prober
+
+  # LUKS_LVM_PART_INDEX=5
+  # LUKS_LVM_PART="/dev/sda${LUKS_LVM_PART_INDEX}"
+
+  cat /etc/default/grub | grep GRUB_CMDLINE_LINUX=
+  sed -i 's/^GRUB_CMDLINE_LINUX=.\+$/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda5:VolGroup00 resume=\/dev\/VolGroup00\/lvolswap"/' /etc/default/grub
+
+  # grub-install --target=i386-pc --recheck /dev/sda
+  grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck
+  grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+function run {
+  locales
+  timezone
+  network_config
+  ramdisk
+  users_and_passwords
+  bootloader
+}
+run

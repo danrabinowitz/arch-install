@@ -4,6 +4,12 @@ set -x
 
 echo "This file is remote"
 
+function pre_install {
+  ls /sys/firmware/efi/efivars
+  timedatectl set-ntp true
+  timedatectl status
+}
+
 function create_partition {
   local id="$1"
   local size="$2"
@@ -39,26 +45,103 @@ function partitions {
   sgdisk /dev/sda -p
 
   LUKS_LVM_PART_INDEX=5
-  LUKS_LVM_PART="/dev/sda#{LUKS_LVM_PART_INDEX}"
+  LUKS_LVM_PART="/dev/sda${LUKS_LVM_PART_INDEX}"
 }
 
 function encrypted_lvm {
   echo "TODO: ---------- Verify/Review/Change/Update the 'cryptsetup' options!"
   # cryptsetup -v -y luksFormat --type luks2 "$LUKS_LVM_PART"
+  echo "Working on $LUKS_LVM_PART"
   cryptsetup -v -y -c aes-xts-plain64 -s 512 -h sha512 -i 5000 --use-random luksFormat "$LUKS_LVM_PART"
 
   # This will mount the unencrypted LVM device at /dev/mapper/cryptlvm
   cryptsetup luksOpen "$LUKS_LVM_PART" cryptlvm
 
+  lvmdiskscan
+
+  pvcreate /dev/mapper/cryptlvm
+  pvdisplay
+  vgcreate VolGroup00 /dev/mapper/cryptlvm
+  vgdisplay
+
+  lvcreate -C y -L 6GB VolGroup00 -n lvolswap
+  lvcreate -L 8GB VolGroup00 -n lvolroot1
+  lvcreate -L 8GB VolGroup00 -n lvolroot2
+  lvcreate -l +100%FREE VolGroup00 -n lvolshared
+
+  lvdisplay
+  lvscan
+
+  vgscan
+  vgchange -ay
+}
+
+function filesystems {
+  # Format the ESP (EFI System Partition)
+  mkfs.fat -F32 /dev/sda2
+
+  # Format the boot partition
+  mkfs.ext4 /dev/sda3
+
+  # Format the swap partition
+  mkswap /dev/mapper/VolGroup00-lvolswap
+
+  # Format the root partition
+  mkfs.ext4 /dev/mapper/VolGroup00-lvolroot1
+
+  # Format the shared partition
+  mkfs.ext4 /dev/mapper/VolGroup00-lvolshared
+
+  swapon /dev/mapper/VolGroup00-lvolswap
+  mount /dev/mapper/VolGroup00-lvolroot1 /mnt
+  mkdir /mnt/boot
+  mount /dev/sda3 /mnt/boot
+  mkdir /mnt/boot/efi
+  mount /dev/sda2 /mnt/boot/efi
+  lsblk /dev/sda
+}
+
+function pacstrap {
+  echo "TODO: Figure out the best mirror"
+
+  pacman -Syy
+  # pacstrap -i /mnt base base-devel
+  pacstrap -i /mnt base fuse grub lvm2 os-prober
+}
+
+function configure_system {
+  genfstab -U /mnt >> /mnt/etc/fstab
+  blkid
+  cat /mnt/etc/fstab
+
+  echo "Fetching script from the web..."
+  URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/chroot-setup"
 
 
+  LOCAL_SCRIPT_FILENAME="/usr/local/sbin/custom-chroot-setup"
+  curl -fs -o "/mnt$LOCAL_SCRIPT_FILENAME" "$URL"
+  chmod 700 "/mnt$LOCAL_SCRIPT_FILENAME"
 
+  echo "Running ${LOCAL_SCRIPT_FILENAME} in chroot"
+  arch-chroot /mnt "$LOCAL_SCRIPT_FILENAME"
+}
 
-
+function cleanup {
+  umount /mnt/boot/efi
+  umount /mnt/boot
+  umount /mnt
+  echo "Rebooting now. Remember to remove the USB drive!"
+  shutdown -h now
+  echo "TODO: https://loganmarchione.com/2014/11/arch-linux-encrypted-lvm-hardware-2/#Step_16_8211_Start_Arch_Linux"
 }
 
 function run {
+  pre_install
   partitions
   encrypted_lvm
+  filesystems
+  pacstrap
+  configure_system
+  cleanup
 }
 run
