@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 echo "Fetching script from the web..."
-URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/setup-script"
+URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/setup-script"
 
 
 LOCAL_SCRIPT_FILENAME="/usr/local/sbin/custom-setup-script"
