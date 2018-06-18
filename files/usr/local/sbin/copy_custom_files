@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+(cd "/run/archiso/bootmnt/custom_files" && cp -va . /)

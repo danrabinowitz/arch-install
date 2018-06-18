@@ -11,7 +11,8 @@ if [ -z "$BASE" ]; then
   exit 1
 fi
 
-echo "Checking BASE=${BASE} for .envsubst files"
+SHELL_FORMAT=$(cat /work/.env | grep = | awk -F '=' '{print "${"$1"}"}' | xargs)
+echo "SHELL_FORMAT=${SHELL_FORMAT}"
 
 if [ ! -d "$BASE" ]; then
   echo "BASE (${BASE}) must be a directory, and it is not"
@@ -24,12 +25,18 @@ function process_single_envsubst_file {
   dst_file=$(echo "$src_file" | sed s/.envsubst$// )
   echo "dst_file=${dst_file}"
 
-  envsubst < "$src_file" > "$dst_file"
+  envsubst "$SHELL_FORMAT" < "$src_file" > "$dst_file"
 
   chown --reference="$src_file" "$dst_file"
   chmod --reference="$src_file" "$dst_file"
+
+  echo "----------------------------------------"
+  cat "$dst_file"
+  echo "----------------------------------------"
+
   rm "$src_file"
 }
 
 
+echo "Checking BASE=${BASE} for .envsubst files"
 find "$BASE" -name "*.envsubst" | while read file; do process_single_envsubst_file "$file"; done

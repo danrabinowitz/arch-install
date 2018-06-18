@@ -23,10 +23,12 @@ tar -cf - . | (cd "$tmp_dir" && tar -xf - )
 cd /work
 umount /mnt/linux
 
+custom_files_dir="${tmp_dir}/custom_files"
+mkdir -p "$custom_files_dir"
 echo "Adding our files to the copy of the ISO..."
-(cd "/work/files/" && cp -va . "${tmp_dir}")
+(cd "/work/files/" && cp -va . "${custom_files_dir}")
 
-/work/docker/process_envsubst "${tmp_dir}"
+/work/docker/process_envsubst "${custom_files_dir}"
 
 echo "Creating new ISO..."
 cd "$tmp_dir"

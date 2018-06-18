@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+/run/archiso/bootmnt/custom_files/usr/local/sbin/copy_custom_files
+
+/usr/local/sbin/custom-net-connect
+echo "Starting sshd..."
+systemctl start sshd
+
+/usr/local/sbin/custom-run-remote-setup-script
