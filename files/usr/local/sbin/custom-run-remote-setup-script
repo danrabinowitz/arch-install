@@ -8,5 +8,6 @@ URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/
 
 LOCAL_SCRIPT_FILENAME="/usr/local/sbin/custom-setup-script"
 curl -f -o "$LOCAL_SCRIPT_FILENAME" "$URL"
+chmod 700 "$LOCAL_SCRIPT_FILENAME"
 
 exec "$LOCAL_SCRIPT_FILENAME"
