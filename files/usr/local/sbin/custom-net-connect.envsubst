@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+DEV="wlp1s0"
+SSID="djr (legacy)"
+PASSPHRASE="$WIFI_PASSPHRASE"
+
+ip link set "$DEV" up
+wpa_supplicant -B -i "$DEV" -c <(wpa_passphrase "$SSID" "$PASSPHRASE")
+dhclient
+ping -c 1 google.com
+MY_IP=$(ifconfig "$DEV" | grep ' inet ' | awk '{print $2}')
+echo "Success! Local IP = ${MY_IP}"

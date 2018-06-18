@@ -1,0 +1,47 @@
+#!/bin/bash
+set -euo pipefail
+# set -x
+
+if [ ! -f /.dockerenv ]; then
+  echo "Please run this from the docker container"
+  exit 1
+fi
+
+VOLUME_LINE=`isoinfo -d -i "/src.iso" | grep -i "Volume id:"`
+VOLUME_NAME=${VOLUME_LINE:11}
+echo "Volume name: $VOLUME_NAME"
+
+
+mkdir -p /mnt/linux
+mount -o loop /src.iso /mnt/linux
+
+# Since the ISO is read-only we will need to copy the contents into another
+# directory that we can modify and add what we want.
+tmp_dir=$(mktemp -d)
+cd /mnt/linux
+tar -cf - . | (cd "$tmp_dir" && tar -xf - )
+cd /work
+umount /mnt/linux
+
+echo "Adding our files to the copy of the ISO..."
+(cd "/work/files/" && cp -va . "${tmp_dir}")
+
+/work/docker/process_envsubst "${tmp_dir}"
+
+echo "Creating new ISO..."
+cd "$tmp_dir"
+
+# https://wiki.archlinux.org/index.php/Remastering_the_Install_ISO
+xorriso -as mkisofs \
+  -iso-level 3 \
+  -full-iso9660-filenames \
+  -volid "$VOLUME_NAME" \
+  -eltorito-boot isolinux/isolinux.bin \
+  -eltorito-catalog isolinux/boot.cat \
+  -no-emul-boot -boot-load-size 4 -boot-info-table \
+  -isohybrid-mbr "$tmp_dir"/isolinux/isohdpfx.bin \
+  -eltorito-alt-boot \
+  -e EFI/archiso/efiboot.img \
+  -no-emul-boot -isohybrid-gpt-basdat \
+  -output /dst.iso \
+  "$tmp_dir"

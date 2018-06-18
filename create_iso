@@ -1,0 +1,64 @@
+#!/bin/bash
+set -euo pipefail
+# set -x
+
+DEST_DIR="${HOME}/Downloads"
+
+DEFAULT_ISO="https://mirrors.edge.kernel.org/archlinux/iso/2018.06.01/archlinux-2018.06.01-x86_64.iso"
+ISO="$DEFAULT_ISO"
+
+ISO_FILENAME=$(basename "$ISO")
+DEST_FILE="${DEST_DIR}/${ISO_FILENAME}"
+
+NEW_ISO_FILENAME="dans_archlinux.iso"
+NEW_ISO_FULL_FILENAME="${DEST_DIR}/${NEW_ISO_FILENAME}"
+
+if [ -f "$DEST_FILE" ]; then
+  echo "${DEST_FILE} exists. Not downloading it again."
+else
+  echo "Fetching iso..."
+  curl -f -o "$DEST_FILE" "$ISO"
+  echo "TODO: Check the checksum!"
+fi
+
+# Build Docker image
+DOCKER_IMAGE_TAG="arch-install"
+set +u
+if [ -z "${USE_LOCAL_IMAGE}" ]; then
+  # docker pull "$DOCKER_IMAGE_TAG" || (docker build -t "$DOCKER_IMAGE_TAG" .)
+  docker build -t "$DOCKER_IMAGE_TAG" -f docker/Dockerfile .
+fi
+set -u
+
+touch "$NEW_ISO_FULL_FILENAME"
+
+CMD="${CMD:-/work/docker/update_iso}"
+if [ "$CMD" == "bash" ]; then
+  IT="-it"
+else
+  IT=""
+fi
+
+# Run docker image
+docker run \
+  --rm $IT \
+  --privileged=true \
+  --name arch-install-iso-maker \
+  --cap-add SYS_ADMIN \
+  --env-file .env \
+  -v $(pwd -P):/work \
+  -v "$DEST_FILE":/src.iso \
+  -v "$NEW_ISO_FULL_FILENAME":/dst.iso \
+  "$DOCKER_IMAGE_TAG" \
+  "$CMD"
+
+echo "Success! New ISO created at: ${NEW_ISO_FULL_FILENAME}"
+
+echo "Now run: 'diskutil list' to check which disk to use"
+echo "If diskX, then unmount it with: 'diskutil unmountDisk /dev/diskX'"
+
+echo "Next, to create the bootable drive, run:
+sudo dd if=${NEW_ISO_FULL_FILENAME} of=/dev/diskX bs=1m
+"
+
+echo "The files will be available in the install shell at: /run/archiso/bootmnt"

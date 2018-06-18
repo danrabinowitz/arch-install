@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+echo "Fetching script from the web..."
+URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/setup-script"
+
+
+LOCAL_SCRIPT_FILENAME="/usr/local/sbin/custom-setup-script"
+curl -f -o "$LOCAL_SCRIPT_FILENAME" "$URL"
+
+exec "$LOCAL_SCRIPT_FILENAME"

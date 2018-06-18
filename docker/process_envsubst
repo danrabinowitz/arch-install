@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+
+set +u
+BASE="$1"
+set -u
+
+if [ -z "$BASE" ]; then
+  echo "BASE is required"
+  exit 1
+fi
+
+echo "Checking BASE=${BASE} for .envsubst files"
+
+if [ ! -d "$BASE" ]; then
+  echo "BASE (${BASE}) must be a directory, and it is not"
+  exit 1
+fi
+
+function process_single_envsubst_file {
+  local src_file="$1"
+  echo "Processing ${src_file}"
+  dst_file=$(echo "$src_file" | sed s/.envsubst$// )
+  echo "dst_file=${dst_file}"
+
+  envsubst < "$src_file" > "$dst_file"
+
+  chown --reference="$src_file" "$dst_file"
+  chmod --reference="$src_file" "$dst_file"
+  rm "$src_file"
+}
+
+
+find "$BASE" -name "*.envsubst" | while read file; do process_single_envsubst_file "$file"; done
