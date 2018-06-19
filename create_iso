@@ -4,6 +4,9 @@ set -euo pipefail
 
 (cd files; make install/root/install-secrets.tar.gpg)
 
+# Get path of this script
+SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+
 DEST_DIR="${HOME}/Downloads"
 
 DEFAULT_ISO="https://mirrors.edge.kernel.org/archlinux/iso/2018.06.01/archlinux-2018.06.01-x86_64.iso"
@@ -45,10 +48,9 @@ fi
 docker run \
   --rm $IT \
   --privileged=true \
-  --name arch-install-iso-maker \
   --cap-add SYS_ADMIN \
-  --env-file .env \
-  -v $(pwd -P):/work \
+  --name arch-install-iso-maker \
+  -v "$SCRIPT_DIR":/work \
   -v "$DEST_FILE":/src.iso \
   -v "$NEW_ISO_FULL_FILENAME":/dst.iso \
   "$DOCKER_IMAGE_TAG" \
