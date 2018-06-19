@@ -6,3 +6,5 @@
 
 # TODO:
 Use `rankmirrors` to find best mirror.
+
+umount /mnt/boot/efi /mnt/boot /mnt

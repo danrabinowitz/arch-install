@@ -101,7 +101,7 @@ function filesystems {
   lsblk /dev/sda
 }
 
-function pacstrap {
+function this_pacstrap {
   echo "TODO: Figure out the best mirror"
 
   pacman -Syy
@@ -140,7 +140,7 @@ function run {
   partitions
   encrypted_lvm
   filesystems
-  pacstrap
+  this_pacstrap
   configure_system
   cleanup
 }
