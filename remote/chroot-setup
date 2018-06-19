@@ -33,7 +33,6 @@ function install_packages {
   pacman -Syy
   # grub - required below, in this file
   # efibootmgr - probably required for bootloader/grub
-  # lvm2 - ???
   # os-prober - ???
   # wpa_supplicant - needed for network connection after install
   # dhclient - needed for network connection after install
@@ -43,8 +42,8 @@ function install_packages {
   # git - useful for interactive use after install
   # sudo - useful for interactive use after install
   # pacman-contrib - provides pacsearch
-  pacman --noconfirm \
-    grub efibootmgr lvm2 os-prober \
+  pacman --noconfirm -S \
+    grub efibootmgr os-prober \
     wpa_supplicant dhclient openssh core/net-tools \
     vim git sudo pacman-contrib
 }
