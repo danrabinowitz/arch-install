@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-set -x
+# set -x
 
 /run/archiso/bootmnt/custom_files/usr/local/sbin/copy_custom_files
 

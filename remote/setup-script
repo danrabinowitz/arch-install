@@ -105,13 +105,15 @@ function this_pacstrap {
   echo "TODO: Figure out the best mirror"
 
   pacman -Syy
-  pacstrap --noconfirm -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git sudo
+  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git sudo wpa_supplicant
 }
 
 function configure_system {
   genfstab -U /mnt >> /mnt/etc/fstab
   blkid
   cat /mnt/etc/fstab
+
+  cp -a "/run/archiso/bootmnt/custom_files" /mnt/tmp
 
   echo "Fetching script from the web..."
   URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/chroot-setup"
