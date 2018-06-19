@@ -8,4 +8,5 @@ set -x
 echo "Starting sshd..."
 systemctl start sshd
 
-/usr/local/sbin/custom-run-remote-setup-script
+echo "Now connect via ssh and run: /usr/local/sbin/custom-run-remote-setup-script"
+echo "Alternately, you can run that script directly from a local shell."

@@ -38,7 +38,14 @@ EOF
 
 function ramdisk {
   grep '^HOOKS=' /etc/mkinitcpio.conf
-  sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard usbinput encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
+  # sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard usbinput encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
+  sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
+  # sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf
+  # HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt lvm2 filesystems fsck)
+
+  echo 'The warnings about "Possibly missing firmware" for aic94xx and wd719x are for'
+  echo 'SCSI cards, and can be safely ignored.'
+
   cd /boot
   mkinitcpio -p linux
 }
