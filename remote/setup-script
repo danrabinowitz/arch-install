@@ -127,11 +127,17 @@ function filesystems {
 }
 
 function this_pacstrap {
-  echo "TODO: Figure out the best mirror"
+  cat <<EOF > /mnt/etc/pacman.d/mirrorlist
+Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
+Server = http://mirrors.kernel.org/archlinux/$repo/os/$arch
+Server = http://mirrors.xmission.com/archlinux/$repo/os/$arch
+Server = http://mirror.sfo12.us.leaseweb.net/archlinux/$repo/os/$arch
+Server = http://mirrors.sonic.net/archlinux/$repo/os/$arch
+Server = http://il.us.mirror.archlinux-br.org/$repo/os/$arch
+EOF
 
-  echo "TODO: It is probably better to move some of these installs into the chroot"
-  echo "  and only have the essential one(s) out here."
   pacman -Syy
+  # Essential package(s) only
   pacstrap -i /mnt base
 }
 
