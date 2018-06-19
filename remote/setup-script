@@ -1,13 +1,24 @@
 #!/bin/bash
 set -euo pipefail
-set -x
 
-echo "This file is remote"
+VERBOSE=0
+
+if [ $VERBOSE -ne 0 ]; then
+  set -x
+fi
+
+if [ $VERBOSE -ne 0 ]; then
+  echo "This file is remote"
+fi
 
 function pre_install {
-  ls /sys/firmware/efi/efivars
+  if [ $VERBOSE -ne 0 ]; then
+    ls /sys/firmware/efi/efivars
+  fi
   timedatectl set-ntp true
-  timedatectl status
+  if [ $VERBOSE -ne 0 ]; then
+    timedatectl status
+  fi
 }
 
 function create_partition {
@@ -23,18 +34,23 @@ function create_partition {
   fi
   sgdisk /dev/sda --change-name="$id":"$name"
   sgdisk /dev/sda --typecode="$id":"$typecode"
-  sgdisk /dev/sda --info="$id"
+  if [ $VERBOSE -ne 0 ]; then
+    sgdisk /dev/sda --info="$id"
+  fi
 }
 
 function partitions {
-  sgdisk /dev/sda -p
+  if [ $VERBOSE -ne 0 ]; then
+    sgdisk /dev/sda -p
+  fi
 
-  sgdisk /dev/sda --verify
   sgdisk /dev/sda --zap-all
   sgdisk /dev/sda --clear
   sgdisk /dev/sda --verify
 
-  sgdisk /dev/sda -p
+  if [ $VERBOSE -ne 0 ]; then
+    sgdisk /dev/sda -p
+  fi
 
   create_partition 1 "+1M"   "ef02" "BIOS Boot"
   create_partition 2 "+550M" "ef00" "EFI Boot"
@@ -42,7 +58,9 @@ function partitions {
   create_partition 4 "+400M" "8300" "Encrypted Boot"
   create_partition 5 ""      "8e00" "LUKS Encrypted for Linux LVM"
 
-  sgdisk /dev/sda -p
+  if [ $VERBOSE -ne 0 ]; then
+    sgdisk /dev/sda -p
+  fi
 
   LUKS_LVM_PART_INDEX=5
   LUKS_LVM_PART="/dev/sda${LUKS_LVM_PART_INDEX}"
@@ -60,16 +78,22 @@ function encrypted_lvm {
   lvmdiskscan
 
   pvcreate /dev/mapper/cryptlvm
-  pvdisplay
+  if [ $VERBOSE -ne 0 ]; then
+    pvdisplay
+  fi
   vgcreate VolGroup00 /dev/mapper/cryptlvm
-  vgdisplay
+  if [ $VERBOSE -ne 0 ]; then
+    vgdisplay
+  fi
 
   lvcreate -C y -L 6GB VolGroup00 -n lvolswap
   lvcreate -L 8GB VolGroup00 -n lvolroot1
   lvcreate -L 8GB VolGroup00 -n lvolroot2
   lvcreate -l +100%FREE VolGroup00 -n lvolshared
 
-  lvdisplay
+  if [ $VERBOSE -ne 0 ]; then
+    lvdisplay
+  fi
   lvscan
 
   vgscan
@@ -98,6 +122,7 @@ function filesystems {
   mount /dev/sda3 /mnt/boot
   mkdir /mnt/boot/efi
   mount /dev/sda2 /mnt/boot/efi
+
   lsblk /dev/sda
 }
 
@@ -110,12 +135,16 @@ function this_pacstrap {
 
 function configure_system {
   genfstab -U /mnt >> /mnt/etc/fstab
-  blkid
-  cat /mnt/etc/fstab
+  if [ $VERBOSE -ne 0 ]; then
+    blkid
+    cat /mnt/etc/fstab
+  fi
 
   cp -a "/run/archiso/bootmnt/custom_files" /mnt/tmp
 
-  echo "Fetching script from the web..."
+  if [ $VERBOSE -ne 0 ]; then
+    echo "Fetching script from the web..."
+  fi
   URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/chroot-setup"
 
 
@@ -134,7 +163,8 @@ function cleanup {
   swapoff /dev/mapper/VolGroup00-lvolswap
 
   echo "Rebooting now. Remember to remove the USB drive!"
-  shutdown -h now
+  # shutdown -h now
+  reboot
   echo "TODO: https://loganmarchione.com/2014/11/arch-linux-encrypted-lvm-hardware-2/#Step_16_8211_Start_Arch_Linux"
 }
 
