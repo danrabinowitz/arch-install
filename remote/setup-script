@@ -105,7 +105,7 @@ function this_pacstrap {
   echo "TODO: Figure out the best mirror"
 
   pacman -Syy
-  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git sudo wpa_supplicant
+  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git sudo wpa_supplicant dhclient
 }
 
 function configure_system {
