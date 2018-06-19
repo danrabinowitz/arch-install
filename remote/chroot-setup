@@ -1,23 +1,52 @@
 #!/bin/bash
 set -euo pipefail
-set -x
 
-echo "This file is remote AND in the chroot"
+VERBOSE=0
+
+if [ $VERBOSE -ne 0 ]; then
+  set -x
+fi
+
+if [ $VERBOSE -ne 0 ]; then
+  echo "This file is remote AND in the chroot"
+fi
 
 function locales {
-  grep 'en_US.UTF-8 UTF-8' /etc/locale.gen
+  if [ $VERBOSE -ne 0 ]; then
+    grep 'en_US.UTF-8 UTF-8' /etc/locale.gen
+  fi
+
   # Uncomment the en_US locale
   sed -i 's/^#\(en_US\.UTF-8 UTF-8\)/\1/g' /etc/locale.gen
   locale-gen
   echo LANG=en_US.UTF-8 > /etc/locale.conf
   export LANG=en_US.UTF-8
-
 }
 
 function timezone {
   rm /etc/localtime
   ln -s /usr/share/zoneinfo/America/Denver /etc/localtime
   hwclock --systohc --utc
+}
+
+function install_packages {
+  pacman -Syy
+  # grub - required below, in this file
+  # efibootmgr - probably required for bootloader/grub
+  # lvm2 - ???
+  # os-prober - ???
+  # wpa_supplicant - needed for network connection after install
+  # dhclient - needed for network connection after install
+  # openssh - needed for network connection after install
+  # core/net-tools - provides ifconfig which is nice for displaying an IP address
+  # vim - useful for interactive use after install
+  # git - useful for interactive use after install
+  # sudo - useful for interactive use after install
+  # pacman-contrib - provides pacsearch
+  pacman --noconfirm \
+    grub efibootmgr lvm2 os-prober \
+    wpa_supplicant dhclient openssh core/net-tools \
+    vim git sudo pacman-contrib
 }
 
 function network_config {
@@ -37,14 +66,18 @@ EOF
 }
 
 function ramdisk {
-  grep '^HOOKS=' /etc/mkinitcpio.conf
+  if [ $VERBOSE -ne 0 ]; then
+    grep '^HOOKS=' /etc/mkinitcpio.conf
+  fi
   # sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard usbinput encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
   sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect modconf block keymap keyboard encrypt lvm2 resume filesystems shutdown fsck)/g' /etc/mkinitcpio.conf
   # sed -i 's/^HOOKS=.\+$/HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt lvm2 filesystems fsck)/g' /etc/mkinitcpio.conf
   # HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt lvm2 filesystems fsck)
 
-  echo 'The warnings about "Possibly missing firmware" for aic94xx and wd719x are for'
-  echo 'SCSI cards, and can be safely ignored.'
+  if [ $VERBOSE -ne 0 ]; then
+    echo 'The warnings about "Possibly missing firmware" for aic94xx and wd719x are for'
+    echo 'SCSI cards, and can be safely ignored.'
+  fi
 
   cd /boot
   mkinitcpio -p linux
@@ -72,7 +105,9 @@ function bootloader {
   # LUKS_LVM_PART_INDEX=5
   # LUKS_LVM_PART="/dev/sda${LUKS_LVM_PART_INDEX}"
 
-  cat /etc/default/grub | grep GRUB_CMDLINE_LINUX=
+  if [ $VERBOSE -ne 0 ]; then
+    cat /etc/default/grub | grep GRUB_CMDLINE_LINUX=
+  fi
 
   # cryptdevice=UUID=device-UUID:cryptlvm root=/dev/MyVolGroup/root
   sed -i 's/^GRUB_CMDLINE_LINUX=.\+$/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda5:VolGroup00 root=\/dev\/VolGroup00\/lvolroot1 resume=\/dev\/VolGroup00\/lvolswap amdgpu.dc=0"/' /etc/default/grub
@@ -89,6 +124,7 @@ function bootloader {
 function run {
   locales
   timezone
+  install_packages
   network_config
   ramdisk
   users_and_passwords

@@ -132,8 +132,7 @@ function this_pacstrap {
   echo "TODO: It is probably better to move some of these installs into the chroot"
   echo "  and only have the essential one(s) out here."
   pacman -Syy
-  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git \
-    sudo wpa_supplicant dhclient openssh
+  pacstrap -i /mnt base
 }
 
 function configure_system {
