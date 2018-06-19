@@ -64,6 +64,31 @@ function network_config {
 EOF
 }
 
+function create_post_install_service {
+  if [ $VERBOSE -ne 0 ]; then
+    echo "Fetching script from the web..."
+  fi
+  URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/post-install-setup"
+
+
+  LOCAL_SCRIPT_FILENAME="/usr/local/sbin/post-install-setup"
+  curl -fs -o "$LOCAL_SCRIPT_FILENAME" "$URL"
+  chmod 700 "$LOCAL_SCRIPT_FILENAME"
+
+  cat <<EOF > /etc/systemd/system/post-install.service
+[Unit]
+Description=Post Install Service
+
+[Service]
+ExecStart=${LOCAL_SCRIPT_FILENAME}
+StandardOutput=file:/var/log/post-install-setup.log
+StandardError=file:/var/log/post-install-setup-err.log
+EOF
+
+  # Ensure that it runs when we reboot
+  systemctl enable post-install
+}
+
 function ramdisk {
   if [ $VERBOSE -ne 0 ]; then
     grep '^HOOKS=' /etc/mkinitcpio.conf
@@ -125,6 +150,7 @@ function run {
   timezone
   install_packages
   network_config
+  create_post_install_service
   ramdisk
   users_and_passwords
   bootloader

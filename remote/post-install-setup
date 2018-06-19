@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+VERBOSE=1
+
+if [ $VERBOSE -ne 0 ]; then
+  set -x
+fi
+
+# Check if this has already been run before
+head /var/log/post-install-setup.log
+lines=$(grep -c 'Start of post-install-setup' /var/log/post-install-setup.log)
+if [ "$lines" != "0" ]; then
+  echo "It appears that this post-install-setup script has been run before. Refusing to re-run. Aborting."
+  exit 0
+fi
+
+if [ $VERBOSE -ne 0 ]; then
+  echo "Start of post-install-setup"
+fi
+
+
+function grant_sudo {
+  echo 'wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
+}
+
+function install_drivers {
+  pacman -Syy
+
+  pacman --noconfirm -S \
+    xf86-input-synaptics
+}
+
+function network_manager {
+  systemctl enable NetworkManager.service
+  systemctl disable dhcpcd
+  DEV="wlp1s0"
+  systemctl disable dhcpcd@"$DEV"
+}
+
+function cleanup {
+  systemctl disable post-install
+  # rm /etc/systemd/system/post-install.service
+}
+
+function run {
+  grant_sudo
+  install_drivers
+  network_manager
+  cleanup
+}
+run
+
+
+# https://wiki.archlinux.org/index.php/NetworkManager#Problems_with_internal_DHCP_client
