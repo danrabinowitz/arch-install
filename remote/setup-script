@@ -140,7 +140,7 @@ function configure_system {
     cat /mnt/etc/fstab
   fi
 
-  cp -a "/run/archiso/bootmnt/custom_files" /mnt/tmp
+  cp -a "/run/archiso/bootmnt/custom_files" /mnt/
 
   if [ $VERBOSE -ne 0 ]; then
     echo "Fetching script from the web..."
