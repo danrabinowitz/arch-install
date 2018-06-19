@@ -130,7 +130,8 @@ function this_pacstrap {
   echo "TODO: Figure out the best mirror"
 
   pacman -Syy
-  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git sudo wpa_supplicant dhclient
+  pacstrap -i /mnt base base-devel fuse grub lvm2 os-prober vim efibootmgr git \
+    sudo wpa_supplicant dhclient openssh
 }
 
 function configure_system {
@@ -140,6 +141,8 @@ function configure_system {
     cat /mnt/etc/fstab
   fi
 
+  mkdir -p /mnt/root/.ssh
+  cp /run/archiso/bootmnt/custom_files/root/.ssh/authorized_keys /mnt/root/.ssh/
   cp -a "/run/archiso/bootmnt/custom_files" /mnt/
 
   if [ $VERBOSE -ne 0 ]; then
