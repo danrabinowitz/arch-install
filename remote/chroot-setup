@@ -51,6 +51,18 @@ function ramdisk {
 }
 
 function users_and_passwords {
+  echo "----------"
+  echo "Set password for root user:"
+  passwd
+  echo "----------"
+
+  echo "Creating personal user:"
+  useradd -m -g users -G audio,lp,optical,storage,video,games,power,scanner,wheel -s /bin/bash djr
+  echo "----------"
+  echo "Set password for personal user:"
+  passwd djr
+  echo "----------"
+
   echo "TODO: users_and_passwords"
 }
 
