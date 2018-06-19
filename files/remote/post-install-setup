@@ -22,6 +22,9 @@ fi
 
 function grant_sudo {
   echo 'wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
+  if [ $VERBOSE -ne 0 ]; then
+    cat /etc/sudoers
+  fi
 }
 
 function install_drivers {
@@ -32,10 +35,33 @@ function install_drivers {
 }
 
 function network_manager {
+  pacman --noconfirm -S \
+    networkmanager
+
+  cat <<EOF > /etc/NetworkManager/conf.d/dhcp-client.conf
+[main]
+dhcp=dhclient
+EOF
+
   systemctl enable NetworkManager.service
-  systemctl disable dhcpcd
-  DEV="wlp1s0"
-  systemctl disable dhcpcd@"$DEV"
+  # systemctl disable dhcpcd
+  # DEV="wlp1s0"
+  # systemctl disable dhcpcd@"$DEV"
+}
+
+function install_and_setup_x {
+  # Display Manager: LightDM
+  # Greeter: lightdm-gtk3-greeter
+  pacman --noconfirm -S \
+    lightdm lightdm-gtk3-greeter \
+    xfce4 xfce4-goodies \
+    xfce4-notifyd xfce4-power-manager
+
+
+  # Enable the newly installed Light display manager (LightDM) so you can use it when we reboot.
+  systemctl enable lightdm.service
+
+  # https://wiki.archlinux.org/index.php/Xfce#Lock_the_screen
 }
 
 function cleanup {
@@ -47,6 +73,7 @@ function run {
   grant_sudo
   install_drivers
   network_manager
+  install_and_setup_x
   cleanup
 }
 run

@@ -2,7 +2,7 @@
 set -euo pipefail
 # set -x
 
-/run/archiso/bootmnt/custom_files/usr/local/sbin/copy_custom_files
+/run/archiso/bootmnt/custom_files/install/usr/local/sbin/copy_custom_files
 
 /usr/local/sbin/custom-net-connect
 echo "Starting sshd..."

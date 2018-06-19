@@ -136,6 +136,8 @@ Server = http://mirrors.sonic.net/archlinux/$repo/os/$arch
 Server = http://il.us.mirror.archlinux-br.org/$repo/os/$arch
 EOF
 
+  cp /mnt/etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist
+
   pacman -Syy
   # Essential package(s) only
   pacstrap -i /mnt base
@@ -148,9 +150,7 @@ function configure_system {
     cat /mnt/etc/fstab
   fi
 
-  mkdir -p /mnt/root/.ssh
-  cp /run/archiso/bootmnt/custom_files/root/.ssh/authorized_keys /mnt/root/.ssh/
-  cp -a "/run/archiso/bootmnt/custom_files" /mnt/
+  (cd "/run/archiso/bootmnt/custom_files/post-install" && cp -va . /mnt/)
 
   if [ $VERBOSE -ne 0 ]; then
     echo "Fetching script from the web..."

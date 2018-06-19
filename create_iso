@@ -2,6 +2,8 @@
 set -euo pipefail
 # set -x
 
+(cd files; make install/root/install-secrets.tar.gpg)
+
 DEST_DIR="${HOME}/Downloads"
 
 DEFAULT_ISO="https://mirrors.edge.kernel.org/archlinux/iso/2018.06.01/archlinux-2018.06.01-x86_64.iso"

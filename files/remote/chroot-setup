@@ -11,6 +11,11 @@ if [ $VERBOSE -ne 0 ]; then
   echo "This file is remote AND in the chroot"
 fi
 
+function install_secrets {
+  cd /
+  gpg -d /root/install-secrets.tar.gpg | tar xf -
+}
+
 function locales {
   if [ $VERBOSE -ne 0 ]; then
     grep 'en_US.UTF-8 UTF-8' /etc/locale.gen
@@ -146,6 +151,7 @@ function bootloader {
 }
 
 function run {
+  install_secrets
   locales
   timezone
   install_packages

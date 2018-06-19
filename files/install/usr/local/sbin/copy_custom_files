@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+# set -x
+
+verbose=""
+# verbose="v"
+(cd "/run/archiso/bootmnt/custom_files/install" && cp -"$verbose"a . /)
