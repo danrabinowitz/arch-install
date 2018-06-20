@@ -119,8 +119,6 @@ function users_and_passwords {
   echo "Set password for personal user:"
   passwd djr
   echo "----------"
-
-  echo "TODO: users_and_passwords"
 }
 
 function bootloader {
