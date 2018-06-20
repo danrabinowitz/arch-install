@@ -152,8 +152,10 @@ function configure_system {
   fi
 
   (cd "/run/archiso/bootmnt/custom_files/post-install" && cp -va . /mnt/)
-  cp /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg /mnt/root/
-  chmod 400 /mnt/root/install-secrets.tar.gpg
+
+  # Install secrets
+  cd /mnt
+  gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar xf -
 
   if [ $VERBOSE -ne 0 ]; then
     echo "Fetching script from the web..."
