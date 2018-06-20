@@ -3,4 +3,4 @@
 
 /files/install/root/.ssh/authorized_keys
 /files/post-install/root/.ssh/authorized_keys
-/files/post-install/djr/.ssh/authorized_keys
+/files/post-install/home/djr/.ssh/authorized_keys

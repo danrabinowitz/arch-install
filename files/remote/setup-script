@@ -171,8 +171,8 @@ function configure_system {
   # Install secrets
   cd /mnt
   gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar xpf -
-  chown -R root:root /mnt/root
-  chown -R djr:users /mnt/home/djr
+  arch-chroot /mnt chown -R root:root /root
+  arch-chroot /mnt chown -R djr:users /home/djr
 }
 
 function cleanup {
