@@ -43,10 +43,19 @@ function install_packages {
   # git - useful for interactive use after install
   # sudo - useful for interactive use after install
   # pacman-contrib - provides pacsearch
-  pacman --noconfirm -S \
-    grub efibootmgr os-prober \
-    wpa_supplicant dhclient openssh networkmanager core/net-tools \
-    vim git sudo pacman-contrib
+
+  set +e
+  n=0
+  until [ $n -ge 4 ]; do
+    # Try a few times
+    pacman --noconfirm -S \
+      grub efibootmgr os-prober \
+      wpa_supplicant dhclient openssh networkmanager core/net-tools \
+      vim git sudo pacman-contrib && break
+      n=$[$n+1]
+      sleep 15
+   done
+  set -e
 }
 
 function network_config {

@@ -16,7 +16,7 @@
 
 5. As per the output of the previous command:
 ```
-ssh-keygen -R 192.168.5.120 && ssh inspiron3000
+ssh-keygen -R 192.168.5.120 && ssh-keyscan -H 192.168.5.120  >> ~/.ssh/known_hosts ; ssh root@inspiron3000
 /usr/local/sbin/custom-run-remote-setup-script
 ```
 
