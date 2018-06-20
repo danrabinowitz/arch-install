@@ -5,7 +5,7 @@ set -euo pipefail
 /run/archiso/bootmnt/custom_files/install/usr/local/sbin/copy_custom_files
 
 # Get WiFi Password
-source <(gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar -xf - --to-stdout root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
+source <(gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar -xf - --to-stdout ./root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
 WIFI_PASSPHRASE="$WIFI_PASSPHRASE" /usr/local/sbin/custom-net-connect
 
 echo "Starting sshd..."

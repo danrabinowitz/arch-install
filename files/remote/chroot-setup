@@ -73,7 +73,7 @@ function create_post_install_service {
   if [ $VERBOSE -ne 0 ]; then
     echo "Fetching script from the web..."
   fi
-  URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/remote/post-install-setup"
+  URL="https://raw.githubusercontent.com/danrabinowitz/arch-install/master/files/remote/post-install-setup"
 
 
   LOCAL_SCRIPT_FILENAME="/usr/local/sbin/post-install-setup"

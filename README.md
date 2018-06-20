@@ -1,9 +1,24 @@
 # Usage:
 
-1. Create the custom ISO
-2. Boot from the custom ISO
-3. /run/archiso/bootmnt/custom_files/install/usr/local/sbin/custom-init1
-4. After computer is restarted and ssh comes up, run ./send-secrets from primary laptop
+1. Create the custom ISO by running:
+```
+./create_iso
+```
+
+2. Burn the ISO to a USB flash drive by following the output of the previous step.
+
+3. Boot from the custom ISO
+
+4. Start the install with:
+```
+/run/archiso/bootmnt/custom_files/install/usr/local/sbin/custom-init1
+```
+
+5. As per the output of the previous command:
+```
+ssh-keygen -R 192.168.5.120 && ssh inspiron3000
+
+```
 
 # TODO:
 
