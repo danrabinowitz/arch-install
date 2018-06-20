@@ -151,13 +151,6 @@ function configure_system {
     cat /mnt/etc/fstab
   fi
 
-  (cd "/run/archiso/bootmnt/custom_files/post-install" && cp -va . /mnt/)
-  cp /usr/local/sbin/custom-net-connect /mnt/usr/local/sbin/
-
-  # Install secrets
-  cd /mnt
-  gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar xf -
-
   if [ $VERBOSE -ne 0 ]; then
     echo "Fetching script from the web..."
   fi
@@ -170,6 +163,16 @@ function configure_system {
 
   echo "Running ${LOCAL_SCRIPT_FILENAME} in chroot"
   arch-chroot /mnt "$LOCAL_SCRIPT_FILENAME"
+
+
+  (cd "/run/archiso/bootmnt/custom_files/post-install" && cp -va . /mnt/)
+  cp /usr/local/sbin/custom-net-connect /mnt/usr/local/sbin/
+
+  # Install secrets
+  cd /mnt
+  gpg -d /run/archiso/bootmnt/custom_files/install/root/install-secrets.tar.gpg | tar xpf -
+  chown -R root:root /mnt/root
+  chown -R djr:users /mnt/home/djr
 }
 
 function cleanup {

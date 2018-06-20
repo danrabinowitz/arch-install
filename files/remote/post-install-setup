@@ -43,7 +43,12 @@ function network_manager {
 
   source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
   # nmcli dev wifi connect <SSID> password <password>
+  ifconfig || true
+  ip link show || true
+
   nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
+
+  ip link show || true
   # systemctl start sshd
 }
 
