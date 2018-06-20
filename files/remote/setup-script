@@ -128,7 +128,7 @@ function filesystems {
 }
 
 function this_pacstrap {
-  cat <<'EOF' > /mnt/etc/pacman.d/mirrorlist
+  cat <<'EOF' > /etc/pacman.d/mirrorlist
 Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch
 Server = http://mirrors.kernel.org/archlinux/$repo/os/$arch
 Server = http://mirrors.xmission.com/archlinux/$repo/os/$arch
@@ -137,11 +137,11 @@ Server = http://mirrors.sonic.net/archlinux/$repo/os/$arch
 Server = http://il.us.mirror.archlinux-br.org/$repo/os/$arch
 EOF
 
-  cp /mnt/etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist
-
   pacman -Syy
   # Essential package(s) only
   pacstrap -i /mnt base
+
+  cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 }
 
 function configure_system {
