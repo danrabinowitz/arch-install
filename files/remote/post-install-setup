@@ -40,6 +40,10 @@ function network_manager {
   # systemctl disable dhcpcd
   # DEV="wlp1s0"
   # systemctl disable dhcpcd@"$DEV"
+
+  source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
+  nmcli dev wifi connect "djr (legacy)" "$WIFI_PASSPHRASE"
+  # systemctl start sshd
 }
 
 function install_drivers {
@@ -53,7 +57,7 @@ function install_and_setup_x {
   # Display Manager: LightDM
   # Greeter: lightdm-gtk3-greeter
   pacman --noconfirm -S \
-    lightdm lightdm-gtk3-greeter \
+    lightdm lightdm-gtk-greeter \
     xfce4 xfce4-goodies \
     xfce4-notifyd xfce4-power-manager
 
@@ -70,7 +74,7 @@ function cleanup {
 }
 
 function run {
-  # network_manager
+  network_manager
   install_drivers
   install_and_setup_x
   cleanup

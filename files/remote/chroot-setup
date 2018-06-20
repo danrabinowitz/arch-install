@@ -70,6 +70,7 @@ dhcp=dhclient
 EOF
 
   systemctl enable NetworkManager.service
+  systemctl enable sshd
 }
 
 function create_post_install_service {
@@ -89,7 +90,7 @@ Description=Post Install Service
 After=default.target
 
 [Service]
-Type=forking
+# Type=simple
 ExecStart=${LOCAL_SCRIPT_FILENAME}
 StandardOutput=file:/var/log/post-install-setup.log
 StandardError=file:/var/log/post-install-setup-err.log
