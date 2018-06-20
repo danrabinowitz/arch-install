@@ -27,6 +27,44 @@ if [ $VERBOSE -ne 0 ]; then
 fi
 echo "MSG2: This is post-install-setup writing to /dev/console" > /dev/console
 
+function connect_to_wifi_once {
+  source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
+  # nmcli dev wifi connect <SSID> password <password>
+  ifconfig || true
+  ip link show || true
+  nmcli dev || true
+  nmcli con show || true
+
+  set +e
+  nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
+  rc=$?
+  set -e
+
+  if [ $rc -ne 0 ]; then
+    echo "nmcli failed with rc=${rc}"
+  fi
+
+  ip link show || true
+  return $rc
+}
+
+function connect_to_wifi {
+  local max_retries=4
+  set +e
+  n=0
+  until [ $n -ge $max_retries ]; do
+    # Try a few times
+    connect_to_wifi_once && break
+    n=$[$n+1]
+    sleep 5
+  done
+  set -e
+  if [ $n -ge $max_retries ]; then
+    echo "Giving up after ${max_retries} tries."
+    exit 102
+  fi
+}
+
 function network_manager {
   # pacman --noconfirm -S \
   #   networkmanager
@@ -41,14 +79,9 @@ function network_manager {
   # DEV="wlp1s0"
   # systemctl disable dhcpcd@"$DEV"
 
-  source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
-  # nmcli dev wifi connect <SSID> password <password>
-  ifconfig || true
-  ip link show || true
 
-  nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
+  connect_to_wifi
 
-  ip link show || true
   # systemctl start sshd
 }
 
