@@ -185,7 +185,7 @@ function cleanup {
 
   echo "Rebooting now. Remember to remove the USB drive!"
   # shutdown -h now
-  reboot
+  (sleep 3; reboot) &
   echo "TODO: https://loganmarchione.com/2014/11/arch-linux-encrypted-lvm-hardware-2/#Step_16_8211_Start_Arch_Linux"
 }
 
