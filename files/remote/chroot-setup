@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-VERBOSE=0
+VERBOSE=1
 
 if [ $VERBOSE -ne 0 ]; then
   set -x
@@ -61,7 +61,10 @@ function install_packages {
     sleep 15
   done
   set -e
-  [ $n -ge $max_retries ] && exit 1
+  if [ $n -ge $max_retries ]; then
+    echo "Giving up after ${max_retries} tries."
+    exit 101
+  fi
 }
 
 function network_config {
