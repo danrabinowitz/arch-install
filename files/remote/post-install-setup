@@ -34,6 +34,7 @@ function connect_to_wifi_once {
   ip link show || true
   nmcli dev || true
   nmcli con show || true
+  nmcli device wifi list || true
 
   set +e
   nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
@@ -45,6 +46,7 @@ function connect_to_wifi_once {
   fi
 
   ip link show || true
+  nmcli device wifi list || true
   return $rc
 }
 
