@@ -10,25 +10,36 @@ if [ $VERBOSE -ne 0 ]; then
 fi
 
 # Check if this has already been run before
-head /var/log/post-install-setup.log
-
-ls -l /var/run
-
 if [ -f /var/run/post-install-setup ]; then
   echo "It appears that this post-install-setup script has been run before. Refusing to re-run. Aborting."
   exit 0
 fi
 
 echo "started" >> /var/run/post-install-setup
-cat /var/run/post-install-setup
 
 if [ $VERBOSE -ne 0 ]; then
   echo "Start of post-install-setup"
 fi
 echo "MSG2: This is post-install-setup writing to /dev/console" > /dev/console
 
+function wait_for_wifi_interface {
+  local max_retries=5
+  set +e
+  local n=0
+  until [ $n -ge $max_retries ]; do
+    # Try a few times
+    ip link show wlp1s0 && break
+    n=$[$n+1]
+    sleep 5
+  done
+  set -e
+  if [ $n -ge $max_retries ]; then
+    echo "Giving up after ${max_retries} tries."
+    exit 103
+  fi  
+}
+
 function connect_to_wifi_once {
-  source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
   # nmcli dev wifi connect <SSID> password <password>
   ifconfig || true
   ip link show || true
@@ -36,6 +47,7 @@ function connect_to_wifi_once {
   nmcli con show || true
   nmcli device wifi list || true
 
+  source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
   set +e
   nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
   rc=$?
@@ -51,9 +63,11 @@ function connect_to_wifi_once {
 }
 
 function connect_to_wifi {
-  local max_retries=4
+  wait_for_wifi_interface
+
+  local max_retries=5
   set +e
-  n=0
+  local n=0
   until [ $n -ge $max_retries ]; do
     # Try a few times
     connect_to_wifi_once && break
