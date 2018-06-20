@@ -173,9 +173,9 @@ function configure_system {
 }
 
 function cleanup {
+  cd /
   umount /mnt/boot/efi
   umount /mnt/boot
-  sleep 1
   umount /mnt
   swapoff /dev/mapper/VolGroup00-lvolswap
 
