@@ -42,7 +42,8 @@ function network_manager {
   # systemctl disable dhcpcd@"$DEV"
 
   source <(cat /root/install-secrets/secrets.sh | grep '^WIFI_PASSPHRASE=')
-  nmcli dev wifi connect "djr (legacy)" "$WIFI_PASSPHRASE"
+  # nmcli dev wifi connect <SSID> password <password>
+  nmcli dev wifi connect "djr (legacy)" password "$WIFI_PASSPHRASE"
   # systemctl start sshd
 }
 
