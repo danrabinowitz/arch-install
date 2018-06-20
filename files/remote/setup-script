@@ -82,15 +82,15 @@ function encrypted_lvm {
   if [ $VERBOSE -ne 0 ]; then
     pvdisplay
   fi
-  vgcreate EncryptedVolumes /dev/mapper/cryptlvm
+  vgcreate Encrypted /dev/mapper/cryptlvm
   if [ $VERBOSE -ne 0 ]; then
     vgdisplay
   fi
 
-  lvcreate -C y -L 6GB EncryptedVolumes -n lvolswap
-  lvcreate -L 8GB EncryptedVolumes -n lvolroot1
-  lvcreate -L 8GB EncryptedVolumes -n lvolroot2
-  lvcreate -l +100%FREE EncryptedVolumes -n lvolshared
+  lvcreate -C y -L 6GB Encrypted -n lvolswap
+  lvcreate -L 8GB Encrypted -n lvolroot1
+  lvcreate -L 8GB Encrypted -n lvolroot2
+  lvcreate -l +100%FREE Encrypted -n lvolshared
 
   if [ $VERBOSE -ne 0 ]; then
     lvdisplay
@@ -109,16 +109,16 @@ function filesystems {
   mkfs.ext4 /dev/sda3
 
   # Format the swap partition
-  mkswap /dev/mapper/EncryptedVolumes-lvolswap
+  mkswap /dev/mapper/Encrypted-lvolswap
 
   # Format the root partition
-  mkfs.ext4 /dev/mapper/EncryptedVolumes-lvolroot1
+  mkfs.ext4 /dev/mapper/Encrypted-lvolroot1
 
   # Format the shared partition
-  mkfs.ext4 /dev/mapper/EncryptedVolumes-lvolshared
+  mkfs.ext4 /dev/mapper/Encrypted-lvolshared
 
-  swapon /dev/mapper/EncryptedVolumes-lvolswap
-  mount /dev/mapper/EncryptedVolumes-lvolroot1 /mnt
+  swapon /dev/mapper/Encrypted-lvolswap
+  mount /dev/mapper/Encrypted-lvolroot1 /mnt
   mkdir /mnt/boot
   mount /dev/sda3 /mnt/boot
   mkdir /mnt/boot/efi
@@ -177,7 +177,7 @@ function cleanup {
   umount /mnt/boot/efi
   umount /mnt/boot
   umount /mnt
-  swapoff /dev/mapper/EncryptedVolumes-lvolswap
+  swapoff /dev/mapper/Encrypted-lvolswap
 
   echo "Rebooting now. Remember to remove the USB drive!"
   # shutdown -h now

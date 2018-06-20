@@ -171,7 +171,7 @@ function bootloader {
     cat /etc/default/grub | grep GRUB_CMDLINE_LINUX=
   fi
 
-  sed -i 's/^GRUB_CMDLINE_LINUX=.\+$/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda5:EncryptedVolumes root=\/dev\/EncryptedVolumes\/lvolroot1 resume=\/dev\/EncryptedVolumes\/lvolswap amdgpu.dc=0"/' /etc/default/grub
+  sed -i 's/^GRUB_CMDLINE_LINUX=.\+$/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda5:Encrypted root=\/dev\/Encrypted\/lvolroot1 resume=\/dev\/Encrypted\/lvolswap amdgpu.dc=0"/' /etc/default/grub
 
   # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck
   grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
