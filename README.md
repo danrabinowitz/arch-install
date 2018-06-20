@@ -17,10 +17,9 @@
 5. As per the output of the previous command:
 ```
 ssh-keygen -R 192.168.5.120 && ssh inspiron3000
-
+/usr/local/sbin/custom-run-remote-setup-script
 ```
 
 # TODO:
 
-* Read WiFi PW from stdin
 * Use `rankmirrors` to find best mirrors automatically
