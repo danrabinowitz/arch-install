@@ -135,7 +135,8 @@ function users_and_passwords {
 }
 
 function grant_sudo {
-  echo 'wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
+  # echo '%wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
+  echo 'djr ALL=(ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
   if [ $VERBOSE -ne 0 ]; then
     cat /etc/sudoers
   fi

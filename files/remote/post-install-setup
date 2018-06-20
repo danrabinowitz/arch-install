@@ -11,11 +11,16 @@ fi
 
 # Check if this has already been run before
 head /var/log/post-install-setup.log
-lines=$(grep -c 'Start of post-install-setup' /var/log/post-install-setup.log)
-if [ "$lines" != "0" ]; then
+
+ls -l /var/run
+
+if [ -f /var/run/post-install-setup ]; then
   echo "It appears that this post-install-setup script has been run before. Refusing to re-run. Aborting."
   exit 0
 fi
+
+echo "started" >> /var/run/post-install-setup
+cat /var/run/post-install-setup
 
 if [ $VERBOSE -ne 0 ]; then
   echo "Start of post-install-setup"
