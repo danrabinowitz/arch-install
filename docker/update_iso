@@ -15,11 +15,30 @@ echo "Volume name: $VOLUME_NAME"
 mkdir -p /mnt/linux
 mount -o loop /src.iso /mnt/linux
 
+MODIFY_AIROOTFS=0
+if [ $MODIFY_AIROOTFS -ne 0 ]; then
+  # Open airoot
+  cd /mnt/linux/arch/x86_64
+  unsquashfs -d /mnt/airootfs airootfs.sfs
+  echo 'echo "Dan was here"' >> /mnt/airootfs/root/.zlogin
+  echo 'echo "Dan was here2" > /tmp/dan_was_here.log' >> /mnt/airootfs/root/.zlogin
+  echo '/run/archiso/bootmnt/custom_files/install/usr/local/sbin/custom-init1' >> /mnt/airootfs/root/.zlogin
+  echo 'echo "Dan was here3" > /tmp/dan_was_here.log' >> /mnt/airootfs/root/.zlogin
+fi
+
 # Since the ISO is read-only we will need to copy the contents into another
 # directory that we can modify and add what we want.
 tmp_dir=$(mktemp -d)
 cd /mnt/linux
 tar -cf - . | (cd "$tmp_dir" && tar -xf - )
+
+if [ $MODIFY_AIROOTFS -ne 0 ]; then
+  COMPRESS=""
+  # COMPRESS=" -comp xz"
+  mksquashfs "$COMPRESS" /mnt/airootfs "${tmp_dir}/arch/x86_64/airootfs.sfs"
+  md5sum "${tmp_dir}/arch/x86_64/airootfs.sfs" > "${tmp_dir}/arch/x86_64/airootfs.md5"
+fi
+
 cd /work
 umount /mnt/linux
 

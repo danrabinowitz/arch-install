@@ -20,6 +20,9 @@ ssh-keygen -R 192.168.5.120 && ssh inspiron3000
 /usr/local/sbin/custom-run-remote-setup-script
 ```
 
+6. After reboot, login as root
+
+
 # TODO:
 
 * Use `rankmirrors` to find best mirrors automatically

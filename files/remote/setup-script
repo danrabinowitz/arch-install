@@ -152,6 +152,7 @@ function configure_system {
   fi
 
   (cd "/run/archiso/bootmnt/custom_files/post-install" && cp -va . /mnt/)
+  cp /usr/local/sbin/custom-net-connect /mnt/usr/local/sbin/
 
   # Install secrets
   cd /mnt

@@ -37,6 +37,7 @@ function install_packages {
   # wpa_supplicant - needed for network connection after install
   # dhclient - needed for network connection after install
   # openssh - needed for network connection after install
+  # networkmanager - to use for network connections
   # core/net-tools - provides ifconfig which is nice for displaying an IP address
   # vim - useful for interactive use after install
   # git - useful for interactive use after install
@@ -44,7 +45,7 @@ function install_packages {
   # pacman-contrib - provides pacsearch
   pacman --noconfirm -S \
     grub efibootmgr os-prober \
-    wpa_supplicant dhclient openssh core/net-tools \
+    wpa_supplicant dhclient openssh networkmanager core/net-tools \
     vim git sudo pacman-contrib
 }
 
@@ -62,6 +63,13 @@ function network_config {
 
 # End of file
 EOF
+
+  cat <<EOF > /etc/NetworkManager/conf.d/dhcp-client.conf
+[main]
+dhcp=dhclient
+EOF
+
+  systemctl enable NetworkManager.service
 }
 
 function create_post_install_service {
@@ -78,11 +86,16 @@ function create_post_install_service {
   cat <<EOF > /etc/systemd/system/post-install.service
 [Unit]
 Description=Post Install Service
+After=default.target
 
 [Service]
+Type=forking
 ExecStart=${LOCAL_SCRIPT_FILENAME}
 StandardOutput=file:/var/log/post-install-setup.log
 StandardError=file:/var/log/post-install-setup-err.log
+
+[Install]
+WantedBy=default.target
 EOF
 
   # Ensure that it runs when we reboot
@@ -121,6 +134,13 @@ function users_and_passwords {
   echo "----------"
 }
 
+function grant_sudo {
+  echo 'wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
+  if [ $VERBOSE -ne 0 ]; then
+    cat /etc/sudoers
+  fi
+}
+
 function bootloader {
   # pacman -S fuse grub lvm2 os-prober
 
@@ -151,6 +171,7 @@ function run {
   create_post_install_service
   ramdisk
   users_and_passwords
+  grant_sudo
   bootloader
 }
 run

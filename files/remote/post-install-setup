@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+echo "This is post-install-setup writing to /dev/console" > /dev/console
+
 VERBOSE=1
 
 if [ $VERBOSE -ne 0 ]; then
@@ -18,13 +20,21 @@ fi
 if [ $VERBOSE -ne 0 ]; then
   echo "Start of post-install-setup"
 fi
+echo "MSG2: This is post-install-setup writing to /dev/console" > /dev/console
 
+function network_manager {
+  # pacman --noconfirm -S \
+  #   networkmanager
 
-function grant_sudo {
-  echo 'wheel ALL=(ALL) ALL' | sudo EDITOR='tee -a' visudo
-  if [ $VERBOSE -ne 0 ]; then
-    cat /etc/sudoers
-  fi
+#   cat <<EOF > /etc/NetworkManager/conf.d/dhcp-client.conf
+# [main]
+# dhcp=dhclient
+# EOF
+
+#   systemctl enable NetworkManager.service
+  # systemctl disable dhcpcd
+  # DEV="wlp1s0"
+  # systemctl disable dhcpcd@"$DEV"
 }
 
 function install_drivers {
@@ -32,21 +42,6 @@ function install_drivers {
 
   pacman --noconfirm -S \
     xf86-input-synaptics
-}
-
-function network_manager {
-  pacman --noconfirm -S \
-    networkmanager
-
-  cat <<EOF > /etc/NetworkManager/conf.d/dhcp-client.conf
-[main]
-dhcp=dhclient
-EOF
-
-  systemctl enable NetworkManager.service
-  # systemctl disable dhcpcd
-  # DEV="wlp1s0"
-  # systemctl disable dhcpcd@"$DEV"
 }
 
 function install_and_setup_x {
@@ -70,9 +65,8 @@ function cleanup {
 }
 
 function run {
-  grant_sudo
+  # network_manager
   install_drivers
-  network_manager
   install_and_setup_x
   cleanup
 }
