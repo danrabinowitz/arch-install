@@ -6,6 +6,7 @@ WORKDIR /work
 
 RUN apt-get update && \
     apt-get -y install \
-    isolinux xorriso syslinux genisoimage gettext-base
+    isolinux xorriso syslinux genisoimage gettext-base \
+    squashfs-tools
 
 CMD /work/docker/update_iso
