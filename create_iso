@@ -62,7 +62,7 @@ echo "Now run: 'diskutil list' to check which disk to use"
 echo "If diskX, then unmount it with: 'diskutil unmountDisk /dev/diskX'"
 
 echo "Next, to create the bootable drive, run:
-sudo dd if=${NEW_ISO_FULL_FILENAME} of=/dev/diskX bs=1m
+sudo dd if=${NEW_ISO_FULL_FILENAME} of=/dev/rdiskX bs=1m
 "
 
 echo "The files will be available in the install shell at: /run/archiso/bootmnt"
