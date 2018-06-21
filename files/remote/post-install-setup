@@ -128,7 +128,7 @@ function install_and_setup_x {
   systemctl enable lightdm.service
 
   # Configure lightdm
-  sed -i 's/^#greeter-session=.\+$/greeter-session=lightdm-gtk-greeter.desktop/g' /etc/lightdm/lightdm.conf
+  sed -i 's/^#greeter-session=.\+$/greeter-session=lightdm-gtk-greeter/g' /etc/lightdm/lightdm.conf
 
   systemctl start lightdm.service
 
