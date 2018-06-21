@@ -81,24 +81,11 @@ function connect_to_wifi {
   fi
 }
 
-function network_manager {
-  # pacman --noconfirm -S \
-  #   networkmanager
-
-#   cat <<EOF > /etc/NetworkManager/conf.d/dhcp-client.conf
-# [main]
-# dhcp=dhclient
-# EOF
-
-#   systemctl enable NetworkManager.service
-  # systemctl disable dhcpcd
-  # DEV="wlp1s0"
-  # systemctl disable dhcpcd@"$DEV"
-
-
+function enable_network {
   connect_to_wifi
 
-  # systemctl start sshd
+  # Wait until we can ping the outside world
+  until ping -c1 www.google.com; do :; done
 }
 
 function install_drivers {
@@ -141,7 +128,7 @@ function cleanup {
 }
 
 function run {
-  network_manager
+  enable_network
   install_drivers
   install_and_setup_x
   cleanup
