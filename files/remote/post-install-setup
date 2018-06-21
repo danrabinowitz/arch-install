@@ -108,6 +108,18 @@ function install_drivers {
     xf86-input-synaptics
 }
 
+function key_remapping {
+  # Swap CTRL and Esc keys on laptop keyboard
+  cat <<EOF > /etc/ctrl2escape.kmap
+keycode 1 = Caps_Lock
+keycode 58 = Escape
+EOF
+
+  cat <<EOF > /etc/vconsole.conf
+KEYMAP=/etc/ctrl2escape.kmap
+EOF
+}
+
 function install_and_setup_x {
   # Display Manager: LightDM
   # Greeter: lightdm-gtk3-greeter
