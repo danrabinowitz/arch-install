@@ -1,7 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "This is post-install-setup writing to /dev/console" > /dev/console
+function setup_output {
+  # Log stdout and stderr, and also send them to the console
+  exec 1> >(tee /dev/console)
+  exec 2> >(tee /dev/console)
+}
+setup_output
+
+echo "This is echoed to stdout"
+echo "This is post-install-setup writing directly to /dev/console" > /dev/console
 
 VERBOSE=1
 
@@ -111,13 +119,18 @@ function install_and_setup_x {
   # Display Manager: LightDM
   # Greeter: lightdm-gtk3-greeter
   pacman --noconfirm -S \
-    lightdm lightdm-gtk-greeter \
+    lightdm lightdm-gtk-greeter xorg-server \
     xfce4 xfce4-goodies \
     xfce4-notifyd xfce4-power-manager
-
+  echo "Done running pacman"
 
   # Enable the newly installed Light display manager (LightDM) so you can use it when we reboot.
   systemctl enable lightdm.service
+
+  # Configure lightdm
+  sed -i 's/^#greeter-session=.\+$/greeter-session=lightdm-gtk-greeter.desktop/g' /etc/lightdm/lightdm.conf
+
+  systemctl start lightdm.service
 
   # https://wiki.archlinux.org/index.php/Xfce#Lock_the_screen
 }
