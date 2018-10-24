@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 DEST_DIR="${HOME}/Downloads"
 
-DEFAULT_ISO="https://mirrors.edge.kernel.org/archlinux/iso/2018.06.01/archlinux-2018.06.01-x86_64.iso"
+DEFAULT_ISO="https://mirrors.edge.kernel.org/archlinux/iso/2018.10.01/archlinux-2018.10.01-x86_64.iso"
 ISO="$DEFAULT_ISO"
 
 ISO_FILENAME=$(basename "$ISO")
